@@ -38,7 +38,7 @@ namespace CreateObjectAfterFieldParsing
         [TearDown]
         public void TearDown()
         {
-            helper.DeletedWorkspace();
+            helper.CleanEnvironment();
         }
     }
 }

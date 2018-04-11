@@ -18,6 +18,7 @@ namespace CreateObjectAfterFieldParsing
     {
         private TestHelper relativityHelper;
         private IWebDriver driver => TestEnvironment.Instance.Driver;
+        int testWorkspaceID;
 
         public Helper()
         {
@@ -106,16 +107,21 @@ namespace CreateObjectAfterFieldParsing
 
         public void ProvisionEnvironment()
         {
-            int testWorkspaceID = 1051561; // createTestWorkspace();
-            importTestDocumentss(testWorkspaceID);
+            testWorkspaceID = createTestWorkspace();
+            importTestDocuments(testWorkspaceID);
             uploadScript(testWorkspaceID);
+        }
+
+        public void CleanEnvironment()
+        {
+            DeletedWorkspace(testWorkspaceID);
         }
 
         private void uploadScript(int testWorkspaceID)
         {
             using (var client = TestEnvironment.Instance.ServicesManager.CreateProxy<IRSAPIClient>(Relativity.API.ExecutionIdentity.System))
             {
-                Relativity.Test.Helpers.Application.ApplicationHelpers.ImportApplication(client, testWorkspaceID, true, @"J:\Automation\CreateObjectAfterFieldParsing\Data\RA_CreateObjectAfterFieldParsing_20180406213039.rap", "CreateObjectAfterFieldParsing");
+                Relativity.Test.Helpers.Application.ApplicationHelpers.ImportApplication(client, testWorkspaceID, true, @"J:\Automation\CreateObjectAfterFieldParsing\Data\RA_app_Whole_Number_20180411193108.rap", "CreateObjectAfterFieldParsing");
             }
         }
 
@@ -130,9 +136,9 @@ namespace CreateObjectAfterFieldParsing
             return workspaceID;
         }
 
-        private void importTestDocumentss(int workspaceArtifactID)
+        private void importTestDocuments(int testWorkspaceID)
         {
-            ImportAPIHelper.ImportDocumentsInFolder(workspaceArtifactID, ConfigurationHelper.TEST_DATA_LOCATION, true);
+            ImportAPIHelper.ImportDocumentsInFolder(testWorkspaceID, ConfigurationHelper.TEST_DATA_LOCATION, true);
         }
 
         public void CreateFields(int testWorkspaceID)
@@ -177,7 +183,7 @@ namespace CreateObjectAfterFieldParsing
             OBJ.Until(ExpectedConditions.FrameToBeAvailableAndSwitchToIt(By.Id("_externalPage")));
             VisibilityOfAllElementsLocatedBy(By.Id("fil_itemListFUI"), 10);
             IList<IWebElement> all = TableScripts.FindElements(By.TagName("tr"));
-            IList<IWebElement> all1 = all[5].FindElements(By.TagName("td"));
+            IList<IWebElement> all1 = all[3].FindElements(By.TagName("td"));
             IList<IWebElement> all2 = all1[5].FindElements(By.TagName("a"));
             all2[0].Click();
             //return true;
@@ -194,7 +200,7 @@ namespace CreateObjectAfterFieldParsing
             //driver.SwitchTo().Window(driver.WindowHandles.ToList().First());
             //waitForPageUntilElementIsVisible(By.Id("searchId_dropDownList"), 10);
             var selectElementSaveSearch = new SelectElement(ComboboxSaveSearch);
-            selectElementSaveSearch.SelectByValue("1040967");
+            selectElementSaveSearch.SelectByValue("1038052");
             Thread.Sleep(0800);
             RandomField1();
             RandomField2();
@@ -246,14 +252,18 @@ namespace CreateObjectAfterFieldParsing
             all[posicion].Click();
         }
 
-        public void DeletedWorkspace()
+        public void DeletedWorkspace(int testWorkspaceID)
         {
-            Workspace.Click();
+            using (var client = TestEnvironment.Instance.ServicesManager.CreateProxy<IRSAPIClient>(Relativity.API.ExecutionIdentity.System))
+            {
+                DeleteWorkspace.Delete(client, testWorkspaceID);
+            }
+            /*Workspace.Click();
             Delete.Click();
             Thread.Sleep(6000);
             driver.SwitchTo().Window(driver.WindowHandles.ToList().Last());
             Thread.Sleep(6000);
-            BtnOkWorkspace.Click();
+            BtnOkWorkspace.Click();*/
         }
     }
 }
