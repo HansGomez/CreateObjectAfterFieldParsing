@@ -26,12 +26,12 @@ namespace CreateObjectAfterFieldParsing
             helper.ClickTabAdmin();
 
 
-            ////--- act: run process
+            //////--- act: run process
             helper.RunScript();
             var act = helper.SelectTypeSearch();
 
 
-            ////--- assert: validate results
+            //////--- assert: validate results
             Assert.IsTrue(act);
         }
 

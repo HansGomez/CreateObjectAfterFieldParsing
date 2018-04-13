@@ -4,7 +4,6 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Support.PageObjects;
 using OpenQA.Selenium.Support.UI;
 using Relativity.Test.Helpers;
-using Relativity.Test.Helpers.ArtifactHelpers.Request;
 using Relativity.Test.Helpers.ImportAPIHelper;
 using Relativity.Test.Helpers.SharedTestHelpers;
 using Relativity.Test.Helpers.WorkspaceHelpers;
@@ -26,8 +25,11 @@ namespace CreateObjectAfterFieldParsing
             relativityHelper = new TestHelper();
         }
 
-        [FindsBy(How = How.LinkText, Using = "New Workspace")]
+        [FindsBy(How = How.LinkText, Using = "COAFP Test")]
         public IWebElement Button { get; set; }
+
+        [FindsBy(How = How.Id, Using = "qnTextBox")]
+        public IWebElement Button1 { get; set; }
 
         [FindsBy(How = How.LinkText, Using = "Case Admin")]
         public IWebElement TabAdmin { get; set; }
@@ -77,6 +79,13 @@ namespace CreateObjectAfterFieldParsing
         [FindsBy(How = How.LinkText, Using = "Ok")]
         public IWebElement BtnOkWorkspace { get; set; }
 
+
+        [FindsBy(How = How.Id, Using = "qnOuterContainer")]
+        public IWebElement List { get; set; }
+
+        [FindsBy(How = How.Id, Using = "viewMenu")]
+        public IWebElement ComboboxTemplate { get; set; }
+
         //verifica que un elemento esté presente en el DOM de una página y sea visible.Esto no significa necesariamente que el elemento sea visible.
         public IWebElement WaitForPageUntilElementExists(By locator, int maxSeconds)
         {
@@ -121,7 +130,7 @@ namespace CreateObjectAfterFieldParsing
         {
             using (var client = TestEnvironment.Instance.ServicesManager.CreateProxy<IRSAPIClient>(Relativity.API.ExecutionIdentity.System))
             {
-                Relativity.Test.Helpers.Application.ApplicationHelpers.ImportApplication(client, testWorkspaceID, true, @"J:\Automation\CreateObjectAfterFieldParsing\Data\RA_app_Whole_Number_20180411193108.rap", "CreateObjectAfterFieldParsing");
+                Relativity.Test.Helpers.Application.ApplicationHelpers.ImportApplication(client, testWorkspaceID, true, @"\RA_CreateObjectAfterFieldParsing_20180413171452.rap");
             }
         }
 
@@ -141,32 +150,15 @@ namespace CreateObjectAfterFieldParsing
             ImportAPIHelper.ImportDocumentsInFolder(testWorkspaceID, ConfigurationHelper.TEST_DATA_LOCATION, true);
         }
 
-        public void CreateFields(int testWorkspaceID)
-        {
-            using (var client = TestEnvironment.Instance.ServicesManager.CreateProxy<IRSAPIClient>(Relativity.API.ExecutionIdentity.System))
-            {
-                var request = new FieldRequest(testWorkspaceID, FieldType.User)
-                {
-                    FieldName = "Reviewed By"
-                };
-
-                var request1 = new FieldRequest(testWorkspaceID, FieldType.Date)
-                {
-                    FieldName = "Reviewed On"
-                };
-
-                Relativity.Test.Helpers.ArtifactHelpers.Fields.CreateField(client, request);
-                Relativity.Test.Helpers.ArtifactHelpers.Fields.CreateField(client, request1);
-
-            }
-        }
-
         public void ClickToWorkSpace()
         {
+            Thread.Sleep(2000);
             WebDriverWait obj = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
             obj.Until(ExpectedConditions.FrameToBeAvailableAndSwitchToIt(By.Id("_externalPage")));
-            WaitForPageUntilElementIsVisible(By.LinkText(ConfigurationHelper.TEST_WORKSPACE_NAME), 10);
-            Button.Click();
+            var selectElementSaveSearch = new SelectElement(ComboboxTemplate);
+            selectElementSaveSearch.SelectByValue("_s1");
+            Thread.Sleep(0500);
+            driver.FindElement(By.LinkText(ConfigurationHelper.TEST_WORKSPACE_NAME)).Click();
         }
 
         public void ClickTabAdmin()
@@ -208,7 +200,7 @@ namespace CreateObjectAfterFieldParsing
             RandomField4();
             Delimiter.SendKeys("-");
             var selectElementFieldtoPopulate = new SelectElement(ComboboxFieldtoPopulate);
-            selectElementFieldtoPopulate.SelectByValue("1038199");
+            selectElementFieldtoPopulate.SelectByValue("1042824");
             BtnRun.Click();
             driver.SwitchTo().Alert().Accept();
             driver.Close();
@@ -258,12 +250,7 @@ namespace CreateObjectAfterFieldParsing
             {
                 DeleteWorkspace.Delete(client, testWorkspaceID);
             }
-            /*Workspace.Click();
-            Delete.Click();
-            Thread.Sleep(6000);
-            driver.SwitchTo().Window(driver.WindowHandles.ToList().Last());
-            Thread.Sleep(6000);
-            BtnOkWorkspace.Click();*/
         }
+
     }
 }
